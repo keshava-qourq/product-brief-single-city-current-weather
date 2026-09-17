@@ -3,42 +3,52 @@ import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import Weather from "@/screens/Weather";
 import Settings from "@/screens/Settings";
 import Help from "@/screens/Help";
+import { brand } from "@/lib/brand";
 
-const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  [
-    "block rounded-[var(--brand-radius)] px-3 py-2 text-sm font-medium transition-colors",
-    isActive ? "bg-[var(--brand-hover)] text-[var(--brand-fg)]" : "text-[var(--brand-fg-muted)]",
+/**
+ * app_shell -- hosts the centred max-w-2xl layout, the Weather/Settings/Help
+ * tab bar, and the router (BrowserRouter itself is mounted in main.tsx).
+ * `/weather` is the default screen; any unmatched path, including `/`,
+ * redirects back to it.
+ */
+
+const TABS: Array<{ to: string; label: string }> = [
+  { to: "/weather", label: "Weather" },
+  { to: "/settings", label: "Settings" },
+  { to: "/help", label: "Help" },
+];
+
+function tabClassName({ isActive }: { isActive: boolean }): string {
+  return [
+    "flex-1 rounded-[var(--brand-radius)] px-3 py-2 text-center text-sm font-medium transition-colors",
+    "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)]",
+    "focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--brand-background)]",
+    isActive
+      ? "bg-[var(--brand-primary)] text-[#08181F]"
+      : "text-[var(--brand-fg-muted)] hover:bg-[var(--brand-hover)] hover:text-[var(--brand-fg)]",
   ].join(" ");
+}
 
 export default function App() {
   return (
-    <div className="flex min-h-screen">
-      <aside
-        className="w-56 shrink-0 border-r p-4"
-        style={{
-          backgroundColor: "var(--brand-surface)",
-          borderColor: "var(--brand-border)",
-        }}
-      >
-        <p
-          className="mb-4 px-3 text-sm font-semibold"
-          style={{ fontFamily: "var(--brand-font-heading)" }}
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: "var(--brand-background)", fontFamily: brand.fontBody }}
+    >
+      <div className="mx-auto w-full max-w-2xl px-4 pt-4">
+        <nav
+          aria-label="Primary"
+          className="flex gap-1 rounded-[var(--brand-radius)] border p-1"
+          style={{ borderColor: "var(--brand-border)", backgroundColor: "var(--brand-surface)" }}
         >
-          {"Product Brief: Single-City Current Weather"}
-        </p>
-        <nav className="flex flex-col gap-1">
-          <NavLink to="/weather" className={navLinkClass}>
-            {"Weather"}
-          </NavLink>
-          <NavLink to="/settings" className={navLinkClass}>
-            {"Settings"}
-          </NavLink>
-          <NavLink to="/help" className={navLinkClass}>
-            {"Help & Documentation"}
-          </NavLink>
+          {TABS.map((tab) => (
+            <NavLink key={tab.to} to={tab.to} className={tabClassName}>
+              {tab.label}
+            </NavLink>
+          ))}
         </nav>
-      </aside>
-      <main className="flex-1 overflow-auto">
+      </div>
+      <main>
         <Routes>
           <Route path="/weather" element={<Weather />} />
           <Route path="/settings" element={<Settings />} />
